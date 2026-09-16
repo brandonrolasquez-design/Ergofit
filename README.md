@@ -26,4 +26,4 @@ Esta versión es una demostración frontend y guarda los datos localmente en el 
 
 ## Despliegue
 
-El sitio está preparado para publicarse mediante GitHub Pages. Cada actualización de los archivos publicados debe generar un nuevo despliegue mediante GitHub Actions o el mecanismo de Pages configurado en el repositorio.
+El sitio está preparado para publicarse mediante GitHub Pages con GitHub Actions. Las actualizaciones de `main` deben generar nuevos despliegues una vez que Pages esté habilitado para usar Actions.
