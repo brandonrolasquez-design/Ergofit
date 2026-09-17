@@ -1,29 +1,29 @@
 (function(){
-  const cfg=window.ERGOFIT_CONFIG||{};
-  const configured=Boolean(cfg.supabaseUrl&&cfg.supabasePublishableKey&&window.supabase);
-  let client=null;
-  if(configured){client=window.supabase.createClient(cfg.supabaseUrl,cfg.supabasePublishableKey);window.ERGOFIT_SUPABASE=client;}
-  async function saveRegistration(record){
-    if(!configured)return {ok:false,reason:'backend-not-configured'};
-    const row={client_id:record.id,name:record.name,job:record.job,exposures:record.exposures,zones:record.zones,fatigue:record.fatigue,duration:record.duration,alarm:record.alarm,level:record.level,created_at:record.createdAt||new Date().toISOString(),source:'ergofit-web'};
-    const {error}=await client.from('registrations').upsert(row,{onConflict:'client_id'});
-    return error?{ok:false,error:error.message}:{ok:true};
+  const cfg=window.ERGOFIT_SUPABASE||{};
+  const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  let clientPromise=null;
+  async function client(){
+    if(!cfg.url||!cfg.publishableKey) throw new Error('Supabase no configurado');
+    if(!clientPromise) clientPromise=import(SDK).then(m=>m.createClient(cfg.url,cfg.publishableKey));
+    return clientPromise;
   }
-  async function syncAdmin(){
-    if(!configured)return;
-    const {data,error}=await client.from('registrations').select('*').order('created_at',{ascending:false});
-    if(error)return;
-    let current={};try{current=JSON.parse(localStorage.getItem('ergofit_db_v1')||'{}')}catch{}
-    const employees=[],assessments=[];
-    (data||[]).forEach(r=>{const eid='cloud-'+r.client_id;employees.push({id:eid,name:r.name,area:'Por definir',role:r.job});assessments.push({id:'cloud-a-'+r.client_id,employeeId:eid,date:(r.created_at||'').slice(0,10),score:Number(r.fatigue||0)*10,level:r.level||'Bajo',body:(r.zones||[]).join(', '),factor:(r.exposures||[]).join(', '),notes:'Registro preventivo realizado desde ERGOFIT.'});});
-    const localEmployees=(current.employees||[]).filter(x=>!String(x.id).startsWith('cloud-'));
-    const localAssessments=(current.assessments||[]).filter(x=>!String(x.id).startsWith('cloud-a-'));
-    localStorage.setItem('ergofit_db_v1',JSON.stringify({...current,employees:[...employees,...localEmployees],assessments:[...assessments,...localAssessments]}));
-  }
-  window.ERGOFIT_CLOUD={configured,client,saveRegistration,syncAdmin};
-  const nativeSet=Storage.prototype.setItem;
-  Storage.prototype.setItem=function(key,value){
-    nativeSet.call(this,key,value);
-    if(configured&&key==='ergofit_registro_local_v2'&&this===window.localStorage){try{const arr=JSON.parse(value||'[]');if(arr[0])saveRegistration(arr[0]);}catch{}}
+  window.ERGOFIT_CLOUD={
+    async saveRegistration(record){
+      const c=await client();
+      const row={client_id:record.id,name:record.name,job:record.job,exposures:record.exposures||[],zones:record.zones||[],fatigue:Number(record.fatigue||0),duration:record.duration||null,alarm:record.alarm||'no',level:record.level||null,created_at:record.createdAt||new Date().toISOString(),source:'ergofit-web'};
+      const {error}=await c.from('registrations').upsert(row,{onConflict:'client_id'});
+      if(error) throw error;
+      return row;
+    },
+    async listRegistrations(){
+      const c=await client();
+      const {data,error}=await c.from('registrations').select('*').order('created_at',{ascending:false});
+      if(error) throw error;
+      return data||[];
+    },
+    async subscribe(callback){
+      const c=await client();
+      return c.channel('ergofit-registrations').on('postgres_changes',{event:'*',schema:'public',table:'registrations'},callback).subscribe();
+    }
   };
 })();
