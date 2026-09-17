@@ -1,4 +1,4 @@
-const CACHE = 'ergofit-v4';
+const CACHE = 'ergofit-v5';
 const CORE = [
   './','./index.html','./manifest.json','./assets/css/styles.css','./assets/js/supabase-config.js','./assets/js/admin-cloud.js','./assets/js/cloud-sync.js','./assets/images/logo.svg',
   './registro/','./registro/index.html','./registro/styles.css','./registro/app.js','./registro/app-cloud.js'
