@@ -1,6 +1,6 @@
-const CACHE = 'ergofit-v6';
+const CACHE = 'ergofit-v7';
 const CORE = [
-  './','./index.html','./manifest.json','./assets/css/styles.css','./assets/js/supabase-config.js','./assets/js/admin-cloud.js','./assets/js/cloud-sync.js','./assets/images/logo.svg',
+  './','./index.html','./manifest.json','./assets/css/styles.css','./assets/js/supabase-config.js','./assets/js/admin-cloud.js','./assets/js/admin-kpis.js','./assets/js/cloud-sync.js','./assets/images/logo.svg',
   './registro/','./registro/index.html','./registro/styles.css','./registro/app.js','./registro/app-cloud.js'
 ];
 self.addEventListener('install', event => {
