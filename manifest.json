@@ -1,1 +1,18 @@
-{"name":"ERGOFIT","short_name":"ERGOFIT","start_url":"./","display":"standalone","background_color":"#f4f7f8","theme_color":"#0d9488","description":"Plataforma de gestión del riesgo ergonómico","icons":[]}
+{
+  "name": "ERGOFIT",
+  "short_name": "ERGOFIT",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F7F7",
+  "theme_color": "#0F5C5E",
+  "description": "Plataforma de gestión del riesgo ergonómico, pausas activas y bienestar laboral.",
+  "icons": [
+    {
+      "src": "assets/images/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
